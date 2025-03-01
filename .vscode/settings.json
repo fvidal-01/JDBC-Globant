@@ -1,0 +1,9 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\pipem\\OneDrive\\Escritorio\\CURSOS\\Beca - Globant\\Módulo 09 - JDBC\\mysql-connector-j-9.2.0\\mysql-connector-j-9.2.0\\mysql-connector-j-9.2.0.jar",
+        "c:\\Users\\pipem\\OneDrive\\Escritorio\\CURSOS\\Beca - Globant\\Módulo 09 - JDBC\\01 - Introducción y Configuración\\mysql-connector-j-9.2.0\\mysql-connector-j-9.2.0\\mysql-connector-j-9.2.0.jar"
+    ]
+}
