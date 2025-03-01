@@ -1,11 +1,14 @@
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
 public class App {
     public static void main(String[] args) throws Exception {
         Connection conexion = getConnection();
+        
         cerrarConexion(conexion);
     }
 
@@ -42,6 +45,32 @@ public class App {
             } catch(SQLException e){
                 System.out.println("Error al cerrar la conexión: " + e.getMessage());
             }
+        }
+    }
+
+    // 02 - Recuperar Información de la BBDD.
+    public static void buscarClientes(Connection conexion){
+        String sql = "SELECT nombre_contacto, apellido_contacto, telefono FROM cliente";
+
+        try {
+            Statement stmt = conexion.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            int count = 0;
+
+            while(rs.next()){
+                String nombre = rs.getString("nombre_contacto");
+                String apellido = rs.getString("apellido_contacto");
+                String telefono = rs.getString("telefono");
+                count++;
+                
+                System.out.println(count + " - " + nombre + " " + apellido + " - " + telefono);
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
         }
     }
 }
