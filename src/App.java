@@ -1,6 +1,8 @@
 import java.sql.Statement;
+import java.util.Date;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -9,6 +11,17 @@ public class App {
     public static void main(String[] args) throws Exception {
         Connection conexion = getConnection();
         
+        //Statement.
+        // buscarClientes(conexion);
+        // buscarClientePorEmpleado(conexion,6);
+        // buscarClientePorCodigo(conexion, 5);
+        // getProductosParaReponer(conexion, 15);
+        // getProductosGama(conexion, "'Frutales'");
+
+        //PreparedStatement.
+        //getPedidosPorCliente(conexion, 2);
+        getPedidosPorEstado(conexion, "Pendiente");
+
         cerrarConexion(conexion);
     }
 
@@ -48,7 +61,8 @@ public class App {
         }
     }
 
-    // 02 - Recuperar Información de la BBDD.
+
+    /* USO DE STATEMENT. */
     public static void buscarClientes(Connection conexion){
         String sql = "SELECT nombre_contacto, apellido_contacto, telefono FROM cliente";
 
@@ -83,7 +97,7 @@ public class App {
             int count = 0;
             
             while(rs.next()){
-                int codigoCliente = rs.getInt("codigo_empleado");
+                int codigoCliente = rs.getInt("codigo_cliente");
                 String nombre = rs.getString("nombre_contacto");
                 String apellido = rs.getString("apellido_contacto");
                 String telefono = rs.getString("telefono");
@@ -131,7 +145,7 @@ public class App {
                 
                 System.out.println("Cliente con código " + codigo + ":\n"
                                     + "Nombre: " + nombre + " Apellido: " + apellido + " Ciudad: " 
-                                    + ciudad + " País: " + pais + "Límite Crédito: " + limiteCredito);
+                                    + ciudad + " País: " + pais + " Límite Crédito: " + limiteCredito);
 
                 encontrado = true;
             }
@@ -149,7 +163,7 @@ public class App {
     }
 
     public static void getProductosParaReponer(Connection conexion, int numReponer){
-        String sql = "SELECT id_producto, codigo_producto, nombre, cantidad_en_stock FROM producto WHERE cantidad_en_stock <" + numReponer;
+        String sql = "SELECT id_producto, codigo_producto, nombre, cantidad_en_stock FROM producto WHERE " + numReponer + " <= cantidad_en_stock ";
 
         try{
             Statement stmt = conexion.createStatement();
@@ -180,9 +194,9 @@ public class App {
         }
     }
 
-    public static void getProductosGama(Connection conexion, String gama){
-        String sql = "SELECT producto.codigo_producto, producto.nombre, gama_producto.id_gama. gama_producto.gama FROM Producto"
-                   + "INNER JOIN gama_producto ON producto.id_gama = gama_producto.id_gama WHERE gama.gama = " + gama;
+    public static void getProductosGama(Connection conexion, String gamaBuscar){
+        String sql = "SELECT producto.codigo_producto, producto.nombre, gama_producto.id_gama, gama_producto.gama FROM Producto "
+                   + "JOIN gama_producto ON producto.id_gama = gama_producto.id_gama WHERE gama_producto.gama = " + gamaBuscar;
         
         try{
             Statement stmt = conexion.createStatement();
@@ -193,9 +207,9 @@ public class App {
                 int codigoProd = rs.getInt("codigo_producto");
                 String nombreProd = rs.getString("nombre");
                 int idGama = rs.getInt("id_gama");
-                String gamaNombre = rs.getString("gama");
+                String gama = rs.getString("gama");
 
-                System.out.println("Codigo: " + codigoProd + " Producto: " + nombreProd + " ID Gama: " + idGama + " Gama: " + gamaNombre);
+                System.out.println("Codigo: " + codigoProd + " Producto: " + nombreProd + " ID Gama: " + idGama + " Gama: " + gama);
                 count ++;
             }
 
@@ -210,4 +224,79 @@ public class App {
             System.out.println("Error en la consulta: " + e.getMessage());
         }
     }
+    /* FIN DE "USO DE STATEMENT". */
+
+    /* USO DE PREPAREDSTATEMENT. */
+    /*
+     * Realizar el método getPedidosPorCliente(idCliente)  en el cual se listen todos los pedidos de un cliente específico pasado por parámetro.
+     *  No es necesario mostrar todos los campos de cada pedido. 
+     */
+
+    public static void getPedidosPorCliente(Connection conexion, int idCliente){
+        String sql =  " SELECT pedido.id_pedido, pedido.fecha_pedido, pedido.fecha_esperada, pedido.estado FROM pedido"
+                    + " JOIN cliente ON pedido.id_cliente = cliente.id_cliente WHERE pedido.id_cliente = ?";
+
+        try {
+            PreparedStatement pstmt = conexion.prepareStatement(sql);
+            pstmt.setInt(1, 1);
+            ResultSet rs = pstmt.executeQuery();
+
+            int count = 0;
+
+            while (rs.next()) {
+                int pedidoId = rs.getInt("id_pedido");                
+                Date fechaPedido = rs.getDate("fecha_pedido");        
+                Date fechaEsperada = rs.getDate("fecha_esperada");        
+                String estado = rs.getString("estado");   
+
+                count ++;     
+
+                System.out.println("ID Pedido:" + pedidoId + " Fecha Pedido: " + fechaPedido + " Fecha Esperada:"+ fechaEsperada + " Estado: " + estado);
+            }
+
+            if(count == 0){
+                System.out.println("No hay pedidos para ese cliente.");
+            }
+
+            rs.close();
+            pstmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
+    }
+
+    public static void getPedidosPorEstado(Connection conexion, String estado){
+        String sql =  " SELECT pedido.id_pedido, pedido.fecha_pedido, pedido.fecha_esperada, pedido.estado FROM pedido WHERE pedido.estado = ?";
+
+        try {
+            PreparedStatement pstmt = conexion.prepareStatement(sql);
+            pstmt.setString(1, estado);
+            ResultSet rs = pstmt.executeQuery();
+
+            int count = 0;
+
+            while (rs.next()) {
+                int pedidoId = rs.getInt("id_pedido");                
+                Date fechaPedido = rs.getDate("fecha_pedido");        
+                Date fechaEsperada = rs.getDate("fecha_esperada");        
+                String estadoPedido = rs.getString("estado");   
+
+                count ++;     
+
+                System.out.println("ID Pedido:" + pedidoId + " Fecha Pedido: " + fechaPedido + " Fecha Esperada:"+ fechaEsperada + " Estado: " + estadoPedido);
+            }
+
+            if(count == 0){
+                System.out.println("No hay pedidos para ese estado.");
+            }
+
+            rs.close();
+            pstmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
+    }
+    /* FIN DE USO DE PREPAREDSTATEMENT. */
 }
