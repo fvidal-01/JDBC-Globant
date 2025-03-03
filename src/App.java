@@ -12,14 +12,14 @@ public class App {
         Connection conexion = getConnection();
         
         //Statement.
-        // buscarClientes(conexion);
-        // buscarClientePorEmpleado(conexion,6);
-        // buscarClientePorCodigo(conexion, 5);
-        // getProductosParaReponer(conexion, 15);
-        // getProductosGama(conexion, "'Frutales'");
+        buscarClientes(conexion);
+        buscarClientePorEmpleado(conexion,6);
+        buscarClientePorCodigo(conexion, 5);
+        getProductosParaReponer(conexion, 15);
+        getProductosGama(conexion, "'Frutales'");
 
         //PreparedStatement.
-        //getPedidosPorCliente(conexion, 2);
+        getPedidosPorCliente(conexion, 2);
         getPedidosPorEstado(conexion, "Pendiente");
 
         cerrarConexion(conexion);
